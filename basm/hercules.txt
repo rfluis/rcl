@@ -1,0 +1,43 @@
+AKA: Hercules, HercMono, HGC 
+
+An extension to the ancient MGA, it provided two video modes: text at 80x25 and graphics at 720x348. An HGC (or a clone) will be an 8-bit ISA card with a female DB9 connector for the monitor, and usually a DB25 for a parallel port. 
+
+In text mode, the characters were defined by a ROM set that was 9x14 pixels. Actually, in ROM it was 8x14 and the 8th column was duplicated for the high-ASCII line drawing glyphs. Text attributes (instead of color) available were: blink, underline, inverse, and high-intensity (on some monitors). 
+
+The HGC sported 64k of RAM, enough to support 8 pages in text mode, or 2 in graphics mode. This memory was mapped to B0000h-BFFFFh in the main processor's address space, with B8000h-BFFFFh able to be turned off to allow simultaneous use of the HGC and a color video card. In graphics mode, memory is laid out in four banks per page, each holding every fourth scan line. 
+
+BIOS support for the HGC was nonexistant. Text mode operations were the same as for the MGA, but graphics was completely unsupported. Most programs that supported it used a TSR to do the low-level mucking about. There were also TSRs that would do a basic emulation of a CGA card. 
+
+I wouldn't know where to find such drivers anymore, so here's some code to do the mucking that I managed to swipe from a few places and bring together:
+ (pure C, flat 32-bit addressing) 
+
+/* 6485 controller mode data */
+char hgcdat[2][12] = {
+    { 0x61, 0x50, 0x52, 0x0f, 0x19, 0x06,
+      0x19, 0x19, 0x02, 0x0d, 0x0b, 0x0c  },
+    { 0x35, 0x2d, 0x2e, 0x07, 0x5b, 0x02,
+      0x57, 0x57, 0x02, 0x03, 0x00 ,0x00  }
+};
+
+/* set mode:  0 = text,  1 = graphics */
+void hgcmode(int ctrlmode)
+{
+   unsigned int reg,ctrl;
+   ctrl = (ctrlmode) ? 0x82 : 0x20;
+   outp(0x3bf,3);     /* allow graphics enable page 1 */
+   outp(0x3b8,ctrl);  /* disable video and set mode   */
+   for (reg = 0; reg <= 11; reg++) {
+                      /* program the crt parameters   */
+        outp(0x3b4,reg);
+        outp(0x3b5,hgcdat[ctrlmode][reg]);
+        }
+   outp(0x3b8,ctrl+8);  /* re-enable the video        */
+}
+
+/* plot a pixel:  0 = off,  1 = on */
+void hgcplot(unsigned short x, unsigned short y,int c)
+{
+  unsigned char mem=(unsigned char *)0xB0000;
+  if (c) mem[((y&3)<<13)+(y>>2)*90+(x>>3)]|=128>>(x&7);
+  else mem[((y&3)<<13)+(y>>2)*90+(x>>3)]&=~(128>>(x&7));
+}
