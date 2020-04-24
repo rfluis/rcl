@@ -13,15 +13,15 @@ or rename/link executable to the name of the command:
 Another way to compile this code is to make a launcher and a dynamic library. To update you have to replace dynamic library.  
 
 This program contains first implementation of VF codec for Vectorial Fields used in micromagnetic codes like NIST's OOMMF or Mumax3.  
-VF format is much more efficient than any OVF subformat compressed with deflate/inflate algorithm.
+VF format is much more efficient than any OVF subformat compressed with deflate/inflate algorithm.  
 
 ## About VF vector format
 
 VF format is a lossy (loss by quantization) codec for OOMMF and mumax3 OVF vector files.
-Binary32 OVF files (OVF for short) are just a header with sizes and attributes in  a human readable format and vectors in IEEE float 32 bit format.
-A vector is just a pack of 3 float quantities, so it occupies 96 bit (12 bytes).
-I use a new datatype 64 bits wide (`rpolar`). 
-It has:
+Binary32 OVF files (OVF for short) are just a header with sizes and attributes in  a human readable format and vectors in IEEE float 32 bit format.  
+A vector is just a pack of 3 float quantities, so it occupies 96 bit (12 bytes).  
+I use a new datatype 64 bits wide (`rpolar`).   
+It has:  
 * 8 bits coding radius exponent (When expressed in float32)
 * 23 bits coding the radius mantissa (When expressed in float32)
 * 16 bits coding the azimuthal angle (Fixed point , where 0 is 0 and 65535 is close to pi)
@@ -31,7 +31,11 @@ Note that sign bit is deprecated since sign of three quantities of the vector ar
 
 ### Why this coding for vectors?
 
-When you 'cook' a field, let's say a domain wall, an isolated skyrmion or a vortex, if vectors in a region are pointing up, their coords are just (0,0,1), because data come from an analytical formula and they can be compressed efectively using Gzip or other standard techniques. But when data comes from a real simulation, if a zone looks like pointing up with naked eye, vectors are not as nice as before, they look like (3.423523e-8,7.3143e-9,0.9999999). What do we have? Two floats fill of garbage (mantissa noise). Coding to `rpolar`, the result is (rad=1,theta=0±2,phi=0±2). Field has smooth variations between neighbours, which means that it will be more easy to compress.
+When you 'cook' a field, let's say a domain wall, an isolated skyrmion or a vortex, if vectors in a region are pointing up, their coords are just (0,0,1), because data come from an analytical formula and they can be compressed efectively using Gzip or other standard techniques.   
+But when data comes from a real simulation, if a zone looks like pointing up with naked eye, vectors are not as nice as before, they look like (3.423523e-8,7.3143e-9,0.9999999).   
+What do we have? Two floats fill of garbage (mantissa noise).  
+Coding to `rpolar`, the result is (rad=1,theta=0±2,phi=0±2).  
+Field has smooth variations between neighbours, which means that it will be more easy to compress.  
 Some data is destroyed in this process, but doesn't carry relevant physical data. Most of the information is carried in the orientation (dot product) and it's stored with about 4~5 decimal places. Radius is stored with a normal float32 number.
 
 ### OVF header storage (Metadata)
