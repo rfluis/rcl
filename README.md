@@ -46,7 +46,7 @@ For example , key (string of lenght 18) and val (string of lenght 21) dump to a 
 Once all key-value pairs are dumped to vector, it is stored in the VF file compressed by zlib.  
 
 OVF header have about 20 pairs and VF have some _extensions_ (new keys), so about 30 pairs.  
-This data is stored in a regular C++ `map<string,string>` when loaded and packed all together in files because using a DB system is cracking a nut with a sledgehammer.  
+This data is stored in a regular C++ `map<string,string>` when loaded and packed all together in file because using a DB system is *cracking a nut with a sledgehammer*.  
 Numerical values are stored converted to a regular ASCII human-readable string.   
 
 ### Field storage 
