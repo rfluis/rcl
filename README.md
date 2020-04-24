@@ -33,7 +33,7 @@ Note that sign bit is deprecated since sign of three quantities of the vector ar
 
 When you 'cook' a field, let's say a domain wall, an isolated skyrmion or a vortex, if vectors in a region are pointing up, their coords are just (0,0,1), because data come from an analytical formula and they can be compressed efectively using Gzip or other standard techniques.   
 But when data comes from a real simulation, if a zone looks like pointing up with naked eye, vectors are not as nice as before, they look like (3.423523e-8,7.3143e-9,0.9999999).   
-What do we have? Two floats fill of garbage (mantissa noise).  
+What do we have? Two floats full of garbage (mantissa noise).  
 Coding to `rpolar`, the result is (rad=1,theta=0±2,phi=0±2).  
 Field has smooth variations between neighbours, which means that it will be more easy to compress.  
 Some data is destroyed in this process, but doesn't carry relevant physical data. Most of the information is carried in the orientation (dot product) and it's stored with about 4~5 decimal places. Radius is stored with a normal float32 number.
